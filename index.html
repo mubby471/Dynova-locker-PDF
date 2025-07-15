@@ -1,172 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynova Secure PDF Portal</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dynova PDF Locker</title>
   <style>
-    * {
-      margin: 0; padding: 0; box-sizing: border-box;
-    }
-    body, html {
-      height: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      overflow: hidden;
-    }
-
-    #stars, #stars2, #stars3 {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: black;
-      z-index: -1;
-    }
-
-    #stars::after, #stars2::after, #stars3::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: transparent url("https://raw.githubusercontent.com/JulianLaval/canvas-particle-network/master/img/stars.png") repeat top center;
-      animation: moveStars 50s linear infinite;
-    }
-
-    @keyframes moveStars {
-      from { background-position: 0 0; }
-      to { background-position: 10000px 5000px; }
-    }
-
-    .container {
+    * {margin: 0; padding: 0; box-sizing: border-box;}
+    body {
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: white;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      position: relative;
-      z-index: 1;
     }
 
-    .login-card {
-      width: 350px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
+    .container {
+      background: rgba(255,255,255,0.1);
       padding: 30px;
-      box-shadow: 0 0 20px rgba(255,255,255,0.1);
+      border-radius: 15px;
+      width: 300px;
       text-align: center;
-      color: white;
-      animation: floatCard 2s ease-in-out infinite alternate;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 20px rgba(255,255,255,0.1);
     }
 
-    @keyframes floatCard {
-      from { transform: translateY(0); }
-      to { transform: translateY(-10px); }
-    }
-
-    .login-card h2 {
-      margin-bottom: 15px;
+    h2 {
       color: #00ffcc;
+      margin-bottom: 15px;
     }
 
-    .login-card input[type="password"],
-    .login-card input[type="text"] {
+    input {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       margin: 10px 0;
-      border: none;
       border-radius: 8px;
-      font-size: 16px;
+      border: none;
+      font-size: 14px;
     }
 
-    .toggle-show {
-      font-size: 13px;
-      color: #ccc;
-      margin-top: -5px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      justify-content: left;
-    }
-
-    .login-card button {
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
       background: #00ffcc;
       border: none;
-      padding: 12px 25px;
-      font-size: 16px;
       border-radius: 8px;
+      font-size: 16px;
       cursor: pointer;
-      transition: 0.3s;
+    }
+
+    .switch {
       margin-top: 10px;
+      font-size: 13px;
     }
 
-    .login-card button:hover {
-      background-color: #00cc99;
-    }
-
-    .success-msg {
-      display: none;
+    .success {
       color: limegreen;
       margin-top: 10px;
-    }
-
-    .error-msg {
-      display: none;
-      color: red;
-      font-size: 14px;
-      margin-top: 10px;
-    }
-
-    @media (max-width: 400px) {
-      .login-card {
-        width: 90%;
-        padding: 20px;
-      }
     }
   </style>
 </head>
 <body>
-
-  <div id="stars"></div>
-  <div id="stars2"></div>
-  <div id="stars3"></div>
-
   <div class="container">
-    <div class="login-card" id="loginCard">
-      <h2>🔐 Dynova Secure PDF Locker</h2>
-      <p style="font-size: 14px; margin-bottom: 20px;">Enter your password to access</p>
-      
-      <input type="password" id="password" placeholder="Enter Password">
-      <div class="toggle-show">
-        <input type="checkbox" onclick="togglePassword()"> Show password
-      </div>
-      
-      <button onclick="checkPassword()">Unlock</button>
-
-      <p class="success-msg" id="success">✅ Access Granted! Redirecting...</p>
-      <p class="error-msg" id="error">❌ Wrong password! Try again.</p>
-    </div>
+    <h2 id="formTitle">Login</h2>
+    <input type="text" id="username" placeholder="Username"/>
+    <input type="password" id="password" placeholder="Password"/>
+    <button onclick="handleAuth()">Login</button>
+    <p class="switch" id="switchText">Don't have an account? <a href="#" onclick="toggleForm()">Sign up</a></p>
+    <p class="success" id="message"></p>
   </div>
 
   <script>
-    function togglePassword() {
-      const input = document.getElementById("password");
-      input.type = input.type === "password" ? "text" : "password";
+    let isLogin = true;
+
+    function toggleForm() {
+      isLogin = !isLogin;
+      document.getElementById('formTitle').innerText = isLogin ? 'Login' : 'Sign Up';
+      document.querySelector('button').innerText = isLogin ? 'Login' : 'Sign Up';
+      document.getElementById('switchText').innerHTML = isLogin
+        ? `Don't have an account? <a href="#" onclick="toggleForm()">Sign up</a>`
+        : `Already have an account? <a href="#" onclick="toggleForm()">Login</a>`;
+      document.getElementById('message').innerText = '';
     }
 
-    function checkPassword() {
-      const input = document.getElementById("password").value;
-      const success = document.getElementById("success");
-      const error = document.getElementById("error");
+    function handleAuth() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const message = document.getElementById('message');
 
-      if (input === "Mubby") {
-        success.style.display = "block";
-        error.style.display = "none";
-        setTimeout(() => {
-          window.location.href = "https://www.ilovepdf.com/protect-pdf";
-        }, 2000);
+      if (isLogin) {
+        // LOGIN
+        const savedUser = localStorage.getItem('dynovaUser');
+        const savedPass = localStorage.getItem('dynovaPass');
+        if (username === savedUser && password === savedPass) {
+          message.innerText = '✅ Login successful! Redirecting...';
+          setTimeout(() => {
+            window.location.href = 'https://www.ilovepdf.com/protect-pdf';
+          }, 2000);
+        } else {
+          alert('❌ Invalid username or password!');
+        }
       } else {
-        error.style.display = "block";
-        success.style.display = "none";
+        // SIGN UP
+        localStorage.setItem('dynovaUser', username);
+        localStorage.setItem('dynovaPass', password);
+        message.innerText = '✅ Account created! You can now login.';
+        toggleForm();
       }
     }
   </script>
