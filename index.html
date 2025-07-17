@@ -5,11 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dynova PDF Locker</title>
   <style>
-    * {margin: 0; padding: 0; box-sizing: border-box;}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #000;
-      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      background: #fff;
+      color: #000;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -17,58 +22,85 @@
     }
 
     .container {
-      background: rgba(255,255,255,0.1);
-      padding: 30px;
-      border-radius: 15px;
-      width: 300px;
+      background: #fff;
+      border: 2px solid #e60000;
+      padding: 35px 25px;
+      border-radius: 20px;
+      width: 330px;
+      box-shadow: 0 0 25px rgba(230, 0, 0, 0.2);
       text-align: center;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 20px rgba(255,255,255,0.1);
     }
 
     h2 {
-      color: #00ffcc;
-      margin-bottom: 15px;
+      color: #e60000;
+      margin-bottom: 20px;
     }
 
     input {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       margin: 10px 0;
       border-radius: 8px;
-      border: none;
-      font-size: 14px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+      transition: border 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border: 1px solid #e60000;
     }
 
     button {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       margin-top: 10px;
-      background: #00ffcc;
+      background: #e60000;
+      color: white;
       border: none;
       border-radius: 8px;
       font-size: 16px;
+      font-weight: bold;
       cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #cc0000;
     }
 
     .switch {
-      margin-top: 10px;
-      font-size: 13px;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .switch a {
+      color: #e60000;
+      text-decoration: none;
+      font-weight: bold;
     }
 
     .success {
-      color: limegreen;
-      margin-top: 10px;
+      color: green;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    #emailInput {
+      display: none;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h2 id="formTitle">Login</h2>
-    <input type="text" id="username" placeholder="Username"/>
-    <input type="password" id="password" placeholder="Password"/>
+    <input type="text" id="username" placeholder="Username" />
+    <input type="email" id="emailInput" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
     <button onclick="handleAuth()">Login</button>
-    <p class="switch" id="switchText">Don't have an account? <a href="#" onclick="toggleForm()">Sign up</a></p>
+    <p class="switch" id="switchText">
+      Don't have an account? <a href="#" onclick="toggleForm()">Sign up</a>
+    </p>
     <p class="success" id="message"></p>
   </div>
 
@@ -77,21 +109,31 @@
 
     function toggleForm() {
       isLogin = !isLogin;
+
       document.getElementById('formTitle').innerText = isLogin ? 'Login' : 'Sign Up';
       document.querySelector('button').innerText = isLogin ? 'Login' : 'Sign Up';
       document.getElementById('switchText').innerHTML = isLogin
         ? `Don't have an account? <a href="#" onclick="toggleForm()">Sign up</a>`
         : `Already have an account? <a href="#" onclick="toggleForm()">Login</a>`;
       document.getElementById('message').innerText = '';
+
+      
+      const emailInput = document.getElementById('emailInput');
+      emailInput.style.display = isLogin ? 'none' : 'block';
     }
 
     function handleAuth() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const email = document.getElementById('emailInput').value.trim();
       const message = document.getElementById('message');
 
+      if (!username || !password || (!isLogin && !email)) {
+        alert('❗ Please fill in all required fields.');
+        return;
+      }
+
       if (isLogin) {
-        // LOGIN
         const savedUser = localStorage.getItem('dynovaUser');
         const savedPass = localStorage.getItem('dynovaPass');
         if (username === savedUser && password === savedPass) {
@@ -103,13 +145,16 @@
           alert('❌ Invalid username or password!');
         }
       } else {
-        // SIGN UP
         localStorage.setItem('dynovaUser', username);
         localStorage.setItem('dynovaPass', password);
+        localStorage.setItem('dynovaEmail', email);
         message.innerText = '✅ Account created! You can now login.';
         toggleForm();
       }
     }
+
+    
+    toggleForm();
   </script>
 </body>
 </html>
